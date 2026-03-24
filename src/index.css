@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 10% 18%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 10% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 10% 18%;
+
+    --primary: 96 72% 73%;
+    --primary-foreground: 220 10% 10%;
+
+    --secondary: 220 10% 96%;
+    --secondary-foreground: 220 10% 18%;
+
+    --muted: 220 10% 96%;
+    --muted-foreground: 220 6% 50%;
+
+    --accent: 96 72% 73%;
+    --accent-foreground: 220 10% 10%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 10% 92%;
+    --input: 220 10% 92%;
+    --ring: 96 72% 73%;
+
+    --radius: 0.75rem;
+
+    --chat-user: 96 72% 73%;
+    --chat-user-foreground: 220 10% 10%;
+    --chat-bot: 220 10% 96%;
+    --chat-bot-foreground: 220 10% 18%;
+
+    --surface-elevated: 0 0% 99%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer utilities {
+  .shadow-card {
+    box-shadow: 0 1px 3px 0 hsl(220 10% 18% / 0.04), 0 1px 2px -1px hsl(220 10% 18% / 0.04);
+  }
+  .shadow-card-hover {
+    box-shadow: 0 4px 12px 0 hsl(220 10% 18% / 0.06), 0 2px 4px -1px hsl(220 10% 18% / 0.04);
+  }
+}
