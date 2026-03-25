@@ -18,11 +18,12 @@ export function classifyLead(leadState) {
 export function nextMissingField(leadState) {
   if (!leadState.produto_interesse) return "produto_interesse";
   if (!leadState.metodo_negociacao) return "metodo_negociacao";
+  if (leadState.consentimento !== true) return "consentimento";
   return null;
 }
 
 export function isReadyForEscalation(leadState) {
-  return Boolean(leadState.produto_interesse && leadState.metodo_negociacao);
+  return Boolean(leadState.produto_interesse && leadState.metodo_negociacao && leadState.consentimento === true);
 }
 
 export function shouldHandoff(leadState, userMessage, hasDirectTrigger = false) {
@@ -30,6 +31,7 @@ export function shouldHandoff(leadState, userMessage, hasDirectTrigger = false) 
   if (leadState.sentimento === "negativo") return true;
   if (hasDirectTrigger) return true;
   if (text.includes("falar com vendedor") || text.includes("falar com humano")) return true;
+  if (leadState.consentimento !== true) return false;
   return false;
 }
 
@@ -43,6 +45,7 @@ function inferNextStep(leadState) {
   if (!leadState.intencao) return "confirmar_intencao";
   if (!leadState.produto_interesse) return "identificar_veiculo_interesse";
   if (!leadState.metodo_negociacao) return "identificar_metodo_negociacao";
+  if (leadState.consentimento !== true) return "solicitar_consentimento_lgpd";
   return "escalar_imediatamente";
 }
 
@@ -50,5 +53,7 @@ function listPending(leadState) {
   const pending = [];
   if (!leadState.produto_interesse) pending.push("produto_interesse");
   if (!leadState.metodo_negociacao) pending.push("metodo_negociacao");
+  if (!leadState.intencao) pending.push("intencao");
+  if (leadState.consentimento !== true) pending.push("consentimento");
   return pending;
 }

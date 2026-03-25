@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { RefreshCw, Activity, CheckCircle2, AlertTriangle, Clock3, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,29 +50,32 @@ const OperationsDashboard = () => {
     return success / evals.length;
   }, [evals]);
 
-  const loadDashboard = async (isManualRefresh = false) => {
-    if (isManualRefresh) setIsRefreshing(true);
-    if (!metrics) setIsLoading(true);
-    setError("");
+  const loadDashboard = useCallback(
+    async (isManualRefresh = false) => {
+      if (isManualRefresh) setIsRefreshing(true);
+      if (!metrics) setIsLoading(true);
+      setError("");
 
-    try {
-      const [metricsRes, evalsRes] = await Promise.all([fetch("/api/metrics"), fetch("/api/evals/latest")]);
+      try {
+        const [metricsRes, evalsRes] = await Promise.all([fetch("/api/metrics"), fetch("/api/evals/latest")]);
 
-      if (!metricsRes.ok) throw new Error("Falha ao carregar métricas.");
-      if (!evalsRes.ok) throw new Error("Falha ao carregar evals.");
+        if (!metricsRes.ok) throw new Error("Falha ao carregar métricas.");
+        if (!evalsRes.ok) throw new Error("Falha ao carregar evals.");
 
-      const metricsData = (await metricsRes.json()) as MetricsResponse;
-      const evalsData = (await evalsRes.json()) as { results?: EvalResult[] };
+        const metricsData = (await metricsRes.json()) as MetricsResponse;
+        const evalsData = (await evalsRes.json()) as { results?: EvalResult[] };
 
-      setMetrics(metricsData);
-      setEvals(Array.isArray(evalsData.results) ? evalsData.results : []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao carregar painel operacional.");
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  };
+        setMetrics(metricsData);
+        setEvals(Array.isArray(evalsData.results) ? evalsData.results : []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Erro ao carregar painel operacional.");
+      } finally {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
+    },
+    [metrics],
+  );
 
   useEffect(() => {
     void loadDashboard();
@@ -84,7 +87,7 @@ const OperationsDashboard = () => {
     return () => {
       window.clearInterval(timer);
     };
-  }, []);
+  }, [loadDashboard]);
 
   const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`;
   const formatMoney = (value: number) => `US$ ${value.toFixed(4)}`;

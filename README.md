@@ -79,7 +79,9 @@ cp .env.example .env
 
 ```env
 OPENAI_API_KEY=...            # opcional para modo fallback sem LLM externo
-AGENT_PORT=3001               # opcional
+AGENT_PORT=3011               # opcional (backend)
+VITE_DEV_PORT=3010            # opcional (frontend)
+# VITE_API_PROXY_TARGET=http://localhost:3011
 AGENT_STORE_PATH=./data/conversations.json
 CRM_WEBHOOK_URL=              # opcional
 CRM_API_KEY=                  # opcional
@@ -108,8 +110,8 @@ npm run dev:all
 
 Aplicação:
 
-- frontend: `http://localhost:8080` (ou porta do Vite)
-- backend: `http://localhost:3001`
+- frontend: `http://localhost:3010` (ou `VITE_DEV_PORT`)
+- backend: `http://localhost:3011`
 
 ## 8. Validação técnica (automatizada)
 
@@ -123,9 +125,9 @@ npm run build
 ### 8.2 Smoke test de APIs
 
 ```bash
-curl -s http://localhost:3001/api/health
-curl -s http://localhost:3001/api/metrics
-curl -s -X POST http://localhost:3001/api/evals/run -H 'Content-Type: application/json' -d '{}'
+curl -s http://localhost:3011/api/health
+curl -s http://localhost:3011/api/metrics
+curl -s -X POST http://localhost:3011/api/evals/run -H 'Content-Type: application/json' -d '{}'
 ```
 
 ## 9. Validação funcional (manual)
@@ -136,7 +138,7 @@ curl -s -X POST http://localhost:3001/api/evals/run -H 'Content-Type: applicatio
 4. Cadastre fonte de conhecimento:
 
 ```bash
-curl -s -X POST http://localhost:3001/api/knowledge-sources \
+curl -s -X POST http://localhost:3011/api/knowledge-sources \
   -H 'Content-Type: application/json' \
   -d '{"id":"faq_entrega","title":"Entrega","content":"Entrega em ate 5 dias uteis.","tags":["entrega"]}'
 ```

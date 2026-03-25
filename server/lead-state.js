@@ -8,7 +8,9 @@ export function createEmptyLeadState(sessionId, leadId) {
     lead_id: leadId,
     nome: "",
     telefone: "",
+    cpf: "",
     email: "",
+    renda_mensal: "",
     cidade: "",
     fonte: "",
     intencao: "",
@@ -18,6 +20,10 @@ export function createEmptyLeadState(sessionId, leadId) {
     prazo: "",
     forma_pagamento: "",
     possui_troca: "",
+    troca_modelo: "",
+    troca_ano: "",
+    troca_km: "",
+    troca_quitado: "",
     sentimento: "neutro",
     estagio: STAGES.ABERTURA,
     score: 0,
@@ -28,6 +34,7 @@ export function createEmptyLeadState(sessionId, leadId) {
     handoff_motivo: "",
     handoff_prioritario: false,
     detalhes_troca_solicitados: false,
+    veiculo_contexto: null,
     duvidas_pendentes: [],
     resumo_conversa: "",
     consentimento: false,
@@ -68,6 +75,11 @@ export function summarizeLead(leadState) {
   if (leadState.intencao) parts.push(`Intencao: ${leadState.intencao}`);
   if (leadState.produto_interesse) parts.push(`Produto: ${leadState.produto_interesse}`);
   if (leadState.metodo_negociacao) parts.push(`Metodo: ${leadState.metodo_negociacao}`);
+  if (leadState.renda_mensal) parts.push(`Renda: ${leadState.renda_mensal}`);
+  if (leadState.troca_modelo) parts.push(`Troca modelo: ${leadState.troca_modelo}`);
+  if (leadState.troca_ano) parts.push(`Troca ano: ${leadState.troca_ano}`);
+  if (leadState.troca_km) parts.push(`Troca km: ${leadState.troca_km}`);
+  if (leadState.troca_quitado) parts.push(`Troca quitado: ${leadState.troca_quitado}`);
   if (leadState.sentimento) parts.push(`Sentimento: ${leadState.sentimento}`);
   if (leadState.classificacao) parts.push(`Classificacao: ${leadState.classificacao}`);
   if (leadState.escalonado) parts.push(`Escalonado: sim`);

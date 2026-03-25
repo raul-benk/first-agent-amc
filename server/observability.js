@@ -1,3 +1,4 @@
+import { STAGES } from "./constants.js";
 import { listEvents, listLeads, listSessions, listToolCalls } from "./store.js";
 
 function safeAvg(numbers) {
@@ -14,12 +15,19 @@ export async function computeOperationalMetrics() {
     listToolCalls(10000),
   ]);
 
-  const qualifiedLeads = leads.filter((lead) => lead.classificacao === "quente");
+  const qualifiedLeads = leads.filter((lead) =>
+    ["quente", "pronto_para_escalonamento"].includes(String(lead.classificacao || "")),
+  );
   const collectedDataLeads = leads.filter((lead) => {
     return lead.nome && (lead.telefone || lead.email) && lead.intencao && lead.produto_interesse;
   });
   const convertedLeads = leads.filter(
-    (lead) => lead.proximo_passo === "encaminhar_vendedor" || lead.estagio === "07_encaminhamento",
+    (lead) =>
+      ["encaminhar_vendedor", "handoff_executado", "confirmar_encaminhamento"].includes(
+        String(lead.proximo_passo || ""),
+      ) ||
+      lead.estagio === STAGES.ENCAMINHAMENTO ||
+      lead.escalonado === true,
   );
 
   const turnFinished = events.filter((event) => event.event_type === "turn_finished");

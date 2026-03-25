@@ -89,7 +89,7 @@ const ChatPreview = ({ assistantName, model, temperature, systemPrompt, preloade
         const response = await fetch("/api/health");
         if (!response.ok) throw new Error("Healthcheck indisponivel");
 
-        const data = (await response.json()) as { hasOpenAIKey?: boolean };
+        const data = await readJsonSafe<{ hasOpenAIKey?: boolean }>(response);
         if (!cancelled) {
           setBackendStatus("online");
           setHasServerKey(!!data.hasOpenAIKey);
@@ -119,7 +119,7 @@ const ChatPreview = ({ assistantName, model, temperature, systemPrompt, preloade
         const response = await fetch(`/api/conversations/${conversationId}`);
         if (!response.ok) return;
 
-        const data = (await response.json()) as { messages?: HistoryMessage[] };
+        const data = await readJsonSafe<{ messages?: HistoryMessage[] }>(response);
         const history = (data.messages || [])
           .filter((msg) => msg.role === "user" || msg.role === "assistant")
           .map((msg) => ({
@@ -174,14 +174,18 @@ const ChatPreview = ({ assistantName, model, temperature, systemPrompt, preloade
         }),
       });
 
-      const data = (await response.json()) as {
+      const data = await readJsonSafe<{
         conversationId?: string;
         reply?: string;
         error?: string;
-      };
+      }>(response);
 
       if (!response.ok) {
         throw new Error(data.error || "Falha ao chamar backend do agente.");
+      }
+
+      if (!data || typeof data.reply !== "string") {
+        throw new Error("Resposta invalida do servidor.");
       }
 
       setConversationId(data.conversationId || nextConversationId);
@@ -194,14 +198,13 @@ const ChatPreview = ({ assistantName, model, temperature, systemPrompt, preloade
           isUser: false,
         },
       ]);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Erro desconhecido no backend.";
-
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
           id: idRef.current++,
-          content: `Erro na requisicao OpenAI: ${message}`,
+          content:
+            "Tive uma instabilidade para responder agora. Pode me enviar novamente em alguns segundos?",
           isUser: false,
         },
       ]);
@@ -306,7 +309,7 @@ function buildInitialMessage(
   return {
     id: 1,
     isUser: false,
-    content: `Olá ${contactFirstName}, tudo bem? 😊\n\nAqui é o ${userFirstName}, consultor da *AMC Veículos*.\nRecebi seu contato através do ${source} sobre o ${interesse}.\n\nEle ainda está disponível, como posso ajudar?`,
+    content: `Olá ${contactFirstName}, tudo bem?\n\nAqui é o ${userFirstName}, consultor da AMC Veículos.\nRecebi seu contato através do ${source} sobre o ${interesse}.\n\nPosso te ajudar com disponibilidade e condições atualizadas. Como você prefere seguir?`,
   };
 }
 
@@ -314,6 +317,17 @@ function extractFirstName(value?: string) {
   if (!value) return "";
   const first = value.trim().split(/\s+/)[0];
   return first || "";
+}
+
+async function readJsonSafe<T>(response: Response): Promise<T> {
+  const raw = await response.text();
+  if (!raw.trim()) return {} as T;
+
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    return {} as T;
+  }
 }
 
 export default ChatPreview;

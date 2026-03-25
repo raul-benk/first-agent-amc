@@ -13,7 +13,6 @@ function start(name, script) {
   child.on("exit", (code, signal) => {
     if (shuttingDown) return;
     const reason = signal ? `signal ${signal}` : `code ${code ?? 0}`;
-    // eslint-disable-next-line no-console
     console.log(`[dev:all] process "${name}" exited with ${reason}`);
     shutdown(code ?? 0);
   });

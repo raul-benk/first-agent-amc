@@ -28,8 +28,11 @@ export async function generateAssistantMessage({
           "Responda em portugues brasileiro, objetivo e natural.",
           "Nao invente fatos comerciais sem base no contexto recuperado.",
           "Faca no maximo 1 pergunta por turno.",
-          "Se faltar consentimento de dados, priorize solicitar consentimento LGPD.",
+          "Nao abra a conversa pedindo consentimento LGPD; colete contexto primeiro e solicite consentimento apenas no momento de usar dados sensiveis.",
+          "Se consentimento LGPD ja estiver no contexto, nao repita o pedido.",
+          "Evite pergunta com muitas opcoes na mesma frase.",
           "Se houver proximo_passo de encaminhamento, proponha handoff sem bloquear o usuario.",
+          "Quando houver dados de veiculo no contexto recuperado, informe preco e detalhes de forma curta.",
         ].join(" ");
 
   const payload = {
@@ -69,14 +72,18 @@ function fallbackReply(context, userMessage) {
   );
 
   if (priceLike) {
-    return "No pré-atendimento eu não consigo te confirmar valor e disponibilidade com precisão agora. Vou consultar o estoque para te responder certinho. Enquanto isso, você prefere seguir por financiamento, troca ou à vista?";
+    return "Consigo te passar valor com base no estoque. Me confirma só modelo e ano para eu te responder certo.";
   }
 
   if (askedQuestion) {
-    return "Ótima pergunta. Vou confirmar esse detalhe com precisão e já sigo com você por aqui. Me conta só um ponto para eu te direcionar melhor no atendimento.";
+    return "Ótima pergunta. Se eu não tiver esse detalhe com segurança, confirmo com o vendedor e te atualizo aqui.";
   }
 
   const prompts = {
+    consentimento: [
+      "Antes de continuar, voce autoriza o uso dos seus dados para seguirmos com seu atendimento?",
+      "Para eu seguir com seu atendimento, voce concorda com o uso dos seus dados conforme a LGPD?",
+    ],
     intencao: [
       "Me conta seu objetivo com esse veículo para eu te direcionar do melhor jeito.",
       "Perfeito. Como você quer seguir com esse atendimento hoje?",

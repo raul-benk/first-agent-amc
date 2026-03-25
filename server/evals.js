@@ -7,6 +7,8 @@ const DEFAULT_SCENARIOS = [
     id: "coleta_completa",
     turns: [
       "Ola, quero comprar um carro.",
+      "Tenho interesse no Tracker Premier 2022.",
+      "Quero seguir por financiamento.",
       "Meu nome e Ana Souza.",
       "Meu telefone e 11987654321 e meu email e ana@email.com.",
       "Moro em Campinas, meu orcamento e R$ 90.000 e quero comprar este mes.",
@@ -21,15 +23,30 @@ const DEFAULT_SCENARIOS = [
     id: "dados_incompletos",
     turns: ["Quero agendar visita.", "Ainda nao quero passar meus dados."],
     assertions: {
-      max_score: 45,
-      expected_next_step: "solicitar_consentimento_lgpd",
+      expected_stage: "07_encaminhamento",
+      expected_next_step: "handoff_executado",
     },
   },
   {
     id: "duvida_fora_escopo",
     turns: ["Vocês vendem motos aquaticas?"],
     assertions: {
-      expect_response: "pre-atendimento",
+      expect_response: "vendedor",
+    },
+  },
+  {
+    id: "handoff_direto_sem_consentimento",
+    turns: ["Quero falar com vendedor agora."],
+    assertions: {
+      expected_stage: "07_encaminhamento",
+      expect_response: "especialista",
+    },
+  },
+  {
+    id: "captura_modelo_direto",
+    turns: ["Quero ver Tracker 2022", "Quero financiar"],
+    assertions: {
+      expected_product_contains: "tracker",
     },
   },
 ];
@@ -121,6 +138,18 @@ function evaluateAssertions(assertions, result) {
   ) {
     success = false;
     details.push(`resposta nao contem termo esperado: ${assertions.expect_response}`);
+  }
+
+  if (
+    assertions.expected_product_contains &&
+    !String(result.leadState?.produto_interesse || "")
+      .toLowerCase()
+      .includes(String(assertions.expected_product_contains).toLowerCase())
+  ) {
+    success = false;
+    details.push(
+      `produto_interesse nao contem esperado: ${result.leadState?.produto_interesse} !~ ${assertions.expected_product_contains}`,
+    );
   }
 
   if (!details.length) details.push("ok");

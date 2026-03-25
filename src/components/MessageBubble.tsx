@@ -16,7 +16,7 @@ const MessageBubble = ({ content, isUser }: MessageBubbleProps) => (
       {isUser ? <User className="h-3.5 w-3.5 text-primary-foreground" /> : <Bot className="h-3.5 w-3.5 text-muted-foreground" />}
     </div>
     <div className={cn(
-      "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+      "rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words",
       isUser
         ? "bg-primary text-primary-foreground rounded-br-md"
         : "bg-muted text-foreground rounded-bl-md"
